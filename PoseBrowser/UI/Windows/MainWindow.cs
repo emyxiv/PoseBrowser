@@ -84,7 +84,6 @@ internal class MainWindow : Window, IDisposable
 
     private bool CropImages = true;
 
-    //internal bool StreamImageLoading = false;
     internal bool UseAsync = true;
     internal Regex PosesExts = new(@"^\.(pose|cmp)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     internal Regex ImagesExts = new(@"^\.(jpg|jpeg|png|gif)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -195,18 +194,6 @@ internal class MainWindow : Window, IDisposable
         {
             foreach (var file in files)
             {
-                // Free up ImageTask memory when image is fully loaded
-                //if (file.ImageTask != null && file.ImageTask.IsCompleted) {
-                //	file.ImageTask.Dispose();
-                //	file.ImageTask = null;
-                //}
-
-                //if (StreamImageLoading) {
-                //	if (file.IsImageLoadable)
-                //		file.LoadImage();
-                //	if (file.IsImageUnloadable)
-                //		file.DisposeImage();
-                //}
 
                 if (FilterImagesOnly && file.ImagePath == null) continue;
 
@@ -227,9 +214,6 @@ internal class MainWindow : Window, IDisposable
 
                     if (CropImages)
                     {
-
-                        // imageTex.TryGetWrap(out var imageWrap);
-
                         (var uv0, var uv1) = CropRatioImage(textureWrap);
                         ImGui.ImageButton(textureWrap.ImGuiHandle, ThumbSize2D, uv0, uv1);
                     }
@@ -625,9 +609,6 @@ internal class MainWindow : Window, IDisposable
 			// TODO: verify if the file is valid
 
 			BrowserPoseFile entry = new(item.FullName, Path.GetFileNameWithoutExtension(item.Name));
-            // FindImage(entry);
-			// if (!StreamImageLoading)
-				// LoadImage(entry);
 			BrowserPoseFiles.Add(entry);
 		}
         if(_configurationService.Configuration.Appearance.BrowserEnableImages) MustRefresh(SyncImageFiles, true);
