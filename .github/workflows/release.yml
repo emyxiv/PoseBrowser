@@ -117,4 +117,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           keep-old-minor-releases: true
+          semver-loose: true
           keep-count: 3
