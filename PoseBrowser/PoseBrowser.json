@@ -1,14 +1,16 @@
 {
-  "Author": "Emyxiv",
-  "Name": "Pose Browser",
-  "Punchline": "A pose browser to work with Brio.",
-  "Description": "A pose browser interfacing with brio.", 
-  "AssemblyVersion": "0.0.0.1",
-  "InternalName": "PoseBrowse",
-  "ApplicableVersion": "any",
-  "Tags": [
-    "gpose", 
-    "brio",
-    "posing"
-  ]
+    "Author": "Emyxiv",
+    "Name": "Pose Browser",
+    "Punchline": "A pose browser to work with Brio.",
+    "Description": "A pose browser interfacing with brio.", 
+    "RepoUrl": "https://github.com/emyxiv/PoseBrowser",
+    "AssemblyVersion": "0.0.0.2",
+    "InternalName": "PoseBrowse",
+    "ApplicableVersion": "any",
+    "DalamudApiLevel": 10,
+    "Tags": [
+        "gpose", 
+        "brio",
+        "posing"
+    ]
 }

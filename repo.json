@@ -5,14 +5,16 @@
         "Punchline": "A pose browser to work with Brio.",
         "Description": "A pose browser interfacing with brio.", 
         "InternalName": "PoseBrowse",
-        "AssemblyVersion": "0.0.0.1",
+        "AssemblyVersion": "0.0.0.2",
         "ApplicableVersion": "any",
+        "DalamudApiLevel": 10,
         "Tags": [
             "gpose", 
             "brio",
             "posing"
         ],
         "RepoUrl": "https://github.com/emyxiv/PoseBrowser",
+		"DownloadCount": 0,
         "DownloadLinkInstall": "https://github.com/emyxiv/PoseBrowser/releases/download/v0.0.0.1/latest.zip"
     }
 ]
