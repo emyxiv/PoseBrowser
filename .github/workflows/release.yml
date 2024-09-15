@@ -116,4 +116,5 @@ jobs:
         uses: Nats-ji/delete-old-releases@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          keep-old-minor-releases: true
           keep-count: 3
