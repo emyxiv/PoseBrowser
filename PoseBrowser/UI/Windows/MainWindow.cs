@@ -676,11 +676,11 @@ internal class MainWindow : Window, IDisposable
 			left = excedingRatioHHalf;
 			right = 1 - excedingRatioHHalf;
 		} else if (sourceAspectRatio < targetAspectRatio) {
-			float excedingRatioW = Math.Abs(targetAspectRatio - sourceAspectRatio) * sourceAspectRatio;
-			float excedingRatioWHalf = excedingRatioW / 2;
+			float exceedingRatioW = Math.Abs(targetAspectRatio - sourceAspectRatio) * sourceAspectRatio;
+			float exceedingRatioWHalf = exceedingRatioW / 2;
 
-			top = excedingRatioWHalf;
-			bottom = 1 - excedingRatioWHalf;
+			top = exceedingRatioWHalf;
+			bottom = 1 - exceedingRatioWHalf;
 		}
 
 		var uv0 = new Vector2(left, top);
