@@ -116,4 +116,6 @@ jobs:
         uses: s00d/delete-older-releases@0.2.1
         with:
            keep_latest: 3
+        env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
