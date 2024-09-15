@@ -1,0 +1,119 @@
+name: Release
+
+# Add a concurrency group incase a tag is created, deleted, and then recreated while a release is in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Only run this workflow when a tag is pushed when the tag starts with "v".
+on:
+  push:
+    tags:
+      - 'v*'
+
+# So we can use the GitHub API to create releases with the run token.
+permissions:
+  contents: write
+
+jobs:
+  Release:
+    if: github.event.pull_request.draft == false # Ignore draft PRs
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: PoseBrowser/
+        shell: bash
+    env:
+      appdata: /tmp/appdata
+      dalamud_appdata: /tmp/appdata/XIVLauncher/addon/Hooks
+      DALAMUD_HOME: /tmp/dalamud
+      IsCI: true
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive # Grab any submodules that may be required
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Download Dalamud Library
+        run: |
+          wget https://goatcorp.github.io/dalamud-distrib/latest.zip -O /tmp/dalamud.zip
+          unzip /tmp/dalamud.zip -d /tmp/dalamud
+
+      - name: Link dalamud to appdata
+        run: |
+          mkdir -p $dalamud_appdata
+          ln -s $DALAMUD_HOME ${dalamud_appdata}/dev
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build plugin in release mode
+        run: dotnet build -c Release --no-restore --nologo -o ./bin/Release
+
+      - name: Generate Checksums
+        working-directory: PoseBrowser/bin/Release/PoseBrowser
+        run: |
+          sha512sum latest.zip >> checksums.sha512
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            PoseBrowser/bin/Release/PoseBrowser/latest.zip
+            PoseBrowser/bin/Release/PoseBrowser/checksums.sha512
+          prerelease: false # Releases cant be marked as prereleases as Dalamud wont be able to find them
+          append_body: true # Append the release notes to the release body
+          body_path: .github/release-notices.md # These notes are automatically added to the release body every time.
+          generate_release_notes: true # Automatically makes a release body from PRs since the last release.
+          fail_on_unmatched_files: true # If the files arent found, fail the workflow and abort the release.
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Release Artifacts
+          path: |
+            PoseBrowser/bin/Release/PoseBrowser/latest.zip
+            PoseBrowser/bin/Release/PoseBrowser/checksums.sha512
+
+      - name: Update repo.json
+        run: |
+          cd ../
+
+          release_version=$(echo ${{ github.ref_name }} | sed 's/^v//')
+          repo_url=$(echo ${{ github.server_url }}/${{ github.repository }} | sed 's/#/\\#/g')
+
+
+          # As new release is already pushed, we want the before-last release, thus the [-2]
+          prev_download_count=$( curl -s ${{ github.api_url }}/repos/${{ github.repository }}/releases | jq '.[-2].assets[1].download_count' )
+          total_minus_prev_download_count=$( cat repo.json | jq '.[0].DownloadCount' )
+          total_download_count=$(($prev_download_count + $total_minus_prev_download_count))
+
+          echo "prev_download_count: $prev_download_count"
+          echo "total_minus_prev_download_count: $total_minus_prev_download_count"
+          echo "total_download_count: $total_download_count"
+
+          sed -i repo.json -E \
+              -e 's#"AssemblyVersion": "([0-9]*\.){2,3}[0-9]*"#"AssemblyVersion": "'"$release_version"'"#g' \
+              -e 's#"TestingAssemblyVersion": "([0-9]*\.){2,3}[0-9]*"#"TestingAssemblyVersion": "'"$release_version"'"#' \
+              -e 's#"DownloadLinkInstall": "[^"]*"#"DownloadLinkInstall": "'"$repo_url/releases/download/${{ github.ref_name }}/latest.zip"'"#g' \
+              -e 's#"DownloadLinkTesting": "[^"]*"#"DownloadLinkTesting": "'"$repo_url/releases/download/${{ github.ref_name }}/latest.zip"'"#g' \
+              -e 's#"DownloadLinkUpdate": "[^"]*"#"DownloadLinkUpdate": "'"$repo_url/releases/download/${{ github.ref_name }}/latest.zip"'"#g' \
+              -e 's#"DownloadCount": [0-9]*#"DownloadCount": '$total_download_count'#g'
+
+          git add repo.json
+          git config --local user.name "github-actions [bot]"
+          git config --local user.email "github-actions@users.noreply.github.com"
+          git commit -m "Update repo.json for ${{ github.ref_name }}"
+          
+          git push origin HEAD:master
+
+      - name: Delete old releases
+        uses: Nats-ji/delete-old-releases@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          keep-count: 3
