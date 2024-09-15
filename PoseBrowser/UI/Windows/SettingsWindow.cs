@@ -1,6 +1,4 @@
-﻿using System;
-using System.Numerics;
-using Dalamud.Interface.Components;
+﻿using System.Numerics;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;

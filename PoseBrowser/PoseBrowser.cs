@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using Dalamud.Game.Command;
-using Dalamud.IoC;
 using Dalamud.Plugin;
-using System.IO;
-using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using Microsoft.Extensions.DependencyInjection;
 using PoseBrowser.Config;
