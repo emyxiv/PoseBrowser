@@ -1,32 +1,38 @@
 {
   "version": 1,
   "dependencies": {
-    "net9.0-windows7.0": {
+    "net10.0-windows7.0": {
+      "Brio.API": {
+        "type": "Direct",
+        "requested": "[3.0.1, )",
+        "resolved": "3.0.1",
+        "contentHash": "40MD49ETqyGsdHGoG3JF/BFcNAphRqi27+ZxfDk2Aj7gAkzDFe7C2UVGirUByrUIj8lxiz9eEoB2i7O9lefEPQ=="
+      },
       "DalamudPackager": {
         "type": "Direct",
-        "requested": "[12.0.0, )",
-        "resolved": "12.0.0",
-        "contentHash": "J5TJLV3f16T/E2H2P17ClWjtfEBPpq3yxvqW46eN36JCm6wR+EaoaYkqG9Rm5sHqs3/nK/vKjWWyvEs/jhKoXw=="
+        "requested": "[15.0.0, )",
+        "resolved": "15.0.0",
+        "contentHash": "411vwC8/X8Z/sQ2TI6v3SvOn66xFPeOjFn3Zn+h0d3Ox2t1kFm66AhDvmx/qcMwVrR+Hidxj0dadpQ2dgyXMBQ=="
       },
       "DotNet.ReproducibleBuilds": {
         "type": "Direct",
-        "requested": "[1.2.25, )",
-        "resolved": "1.2.25",
-        "contentHash": "xCXiw7BCxHJ8pF6wPepRUddlh2dlQlbr81gXA72hdk4FLHkKXas7EH/n+fk5UCA/YfMqG1Z6XaPiUjDbUNBUzg=="
+        "requested": "[1.2.39, )",
+        "resolved": "1.2.39",
+        "contentHash": "fcFN01tDTIQqDuTwr1jUQK/geofiwjG5DycJQOnC72i1SsLAk1ELe+apBOuZ11UMQG8YKFZG1FgvjZPbqHyatg=="
       },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Direct",
-        "requested": "[9.0.3, )",
-        "resolved": "9.0.3",
-        "contentHash": "lDbxJpkl6X8KZGpkAxgrrthQ42YeiR0xjPp7KPx+sCPc3ZbpaIbjzd0QQ+9kDdK2RU2DOl3pc6tQyAgEZY3V0A==",
+        "requested": "[9.0.15, )",
+        "resolved": "9.0.15",
+        "contentHash": "IC2QYj9ctbepvv2etwVXFVSfVLyFuYMuHhclQeuFYyWOGOY8yHfv6GzND3Dr4u7AOhWC1p/HwbJQNCZvGdiQ0g==",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.3"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.15"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",
-        "resolved": "9.0.3",
-        "contentHash": "TfaHPSe39NyL2wxkisRxXK7xvHGZYBZ+dy3r+mqGvnxKgAPdHkMu3QMQZI4pquP6W5FIQBqs8FJpWV8ffCgDqQ=="
+        "resolved": "9.0.15",
+        "contentHash": "4ulUZtcGCPQ/LadApR1QftrRZ0AvxGW6SsVhS3QoTAwZtzhbN6x0VCVPoXsoPkznUrgzy8bi4KZ+kFt5jsP40Q=="
       }
     }
   }

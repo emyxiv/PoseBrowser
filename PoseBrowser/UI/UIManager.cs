@@ -1,10 +1,10 @@
 
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using PoseBrowser.Config;
@@ -32,7 +32,7 @@ internal class UIManager : IDisposable
         AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking
     };
 
-    private readonly List<Window> _hiddenWindows = [];
+    private readonly List<IWindow> _hiddenWindows = [];
 
 
     public static UIManager Instance { get; private set; } = null!;
@@ -70,7 +70,6 @@ internal class UIManager : IDisposable
         _pluginInterface.UiBuilder.Draw += DrawUI;
         _pluginInterface.UiBuilder.OpenConfigUi += ShowSettingsWindow;
         _pluginInterface.UiBuilder.OpenMainUi += ShowMainWindow;
-        _pluginInterface.ActivePluginsChanged += ActivePluginsChanged;
 
         ApplySettings();
     }
@@ -87,15 +86,6 @@ internal class UIManager : IDisposable
         _mainWindow.IsOpen = true;
     }
 
-    private void ActivePluginsChanged(PluginListInvalidationKind kind, bool affectedThisPlugin)
-    {
-        foreach(var plugin in _pluginInterface.InstalledPlugins)
-        {
-            PoseBrowser.Log.Debug($"InstalledPlugins: {plugin}");
-        }
-        
-    }
-    
 
     public void ToggleMainWindow() => _mainWindow.IsOpen = !_mainWindow.IsOpen;
     public void ToggleSettingsWindow() => _settingsWindow.IsOpen = !_settingsWindow.IsOpen;

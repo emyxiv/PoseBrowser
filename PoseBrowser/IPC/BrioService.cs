@@ -1,10 +1,9 @@
 using System;
 using System.Linq;
-using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin;
-using Dalamud.Plugin.Ipc;
+using Dalamud.Plugin.Services;
 using PoseBrowser.Config;
 
 namespace PoseBrowser.IPC;
@@ -16,20 +15,14 @@ internal class BrioService : IDisposable
     private readonly ConfigurationService _configurationService;
     private readonly ITargetManager _targetManager;
 
-    public const string ApiVersionIpcName = "Brio.ApiVersion";
-    private readonly ICallGateSubscriber<(int, int)>? ApiVersionIpc;
 
-    public const string ActorPoseLoadFromFileIPCName = "Brio.Actor.Pose.LoadFromFile";
-    private readonly ICallGateSubscriber<IGameObject, string, bool>? ActorPoseLoadFromFileIPC;
+    private Brio.API.ApiVersion ApiVersionSubscriber;
+    private Brio.API.LoadPoseFromFile LoadPoseFromFileSubscriber;
+    private Brio.API.GetPoseAsJson GetPoseAsJsonSubscriber;
+    private Brio.API.LoadPoseFromJson LoadPoseFromJsonSubscriber;
+    private Brio.API.ResetPose ResetPoseSubscriber;
 
-    public const string ActorPoseGetAsJsonIPCName = "Brio.Actor.Pose.GetPoseAsJson";
-    private readonly ICallGateSubscriber<IGameObject, string?>? ActorPoseGetFromJsonIPC;
 
-    public const string ActorPoseLoadFromJsonIPCName = "Brio.Actor.Pose.LoadFromJson";
-    private readonly ICallGateSubscriber<IGameObject, string, bool, bool>? ActorPoseLoadFromJsonIPC;
-
-    public const string ActorPoseResetIPCName = "Brio.Actor.Pose.Reset";
-    private readonly ICallGateSubscriber<IGameObject, bool, bool>? ActorPoseResetIPC;
 
     public BrioService(IDalamudPluginInterface pluginInterface, ConfigurationService configurationService, ITargetManager targetManager)
     {
@@ -37,11 +30,13 @@ internal class BrioService : IDisposable
         _configurationService = configurationService;
         _targetManager = targetManager;
 
-        ApiVersionIpc = pluginInterface.GetIpcSubscriber<(int,int)>(ApiVersionIpcName);
-        ActorPoseLoadFromFileIPC = pluginInterface.GetIpcSubscriber<IGameObject, string, bool>(ActorPoseLoadFromFileIPCName);
-        ActorPoseGetFromJsonIPC = pluginInterface.GetIpcSubscriber<IGameObject, string?>(ActorPoseGetAsJsonIPCName);
-        ActorPoseLoadFromJsonIPC = pluginInterface.GetIpcSubscriber<IGameObject, string, bool, bool>(ActorPoseLoadFromJsonIPCName);
-        ActorPoseResetIPC = pluginInterface.GetIpcSubscriber<IGameObject, bool, bool>(ActorPoseResetIPCName);
+
+        ApiVersionSubscriber = new global::Brio.API.ApiVersion(pluginInterface);
+        GetPoseAsJsonSubscriber = new global::Brio.API.GetPoseAsJson(pluginInterface);
+        LoadPoseFromFileSubscriber = new global::Brio.API.LoadPoseFromFile(pluginInterface);
+        LoadPoseFromJsonSubscriber = new global::Brio.API.LoadPoseFromJson(pluginInterface);
+        ResetPoseSubscriber = new global::Brio.API.ResetPose(pluginInterface);
+
         RefreshBrioStatus();
 
         _configurationService.OnConfigurationChanged += RefreshBrioStatus;
@@ -49,7 +44,7 @@ internal class BrioService : IDisposable
 
     public (int, int) ApiVersion()
     {
-        return ApiVersionIpc?.InvokeFunc() ?? default;
+        return ApiVersionSubscriber.Invoke();
     }
     public bool ImportPoseTarget(string path)
     {
@@ -57,16 +52,16 @@ internal class BrioService : IDisposable
         if(gameObject == null) return false;
 
         // save current pose
-        var savingJson = ActorPoseGetFromJsonIPC?.InvokeFunc(gameObject);
+        var savingJson = GetPoseAsJsonSubscriber?.Invoke(gameObject);
         if(savingJson == null) return false;
         LastPoseSaved = savingJson;
 
         // apply pose
-        return ActorPoseLoadFromFileIPC?.InvokeFunc(gameObject, path) ?? false;
+        return LoadPoseFromFileSubscriber?.Invoke(gameObject, path) ?? false;
     }
     private IGameObject? GetTargetGameObject()
     {
-        if (_targetManager.GPoseTarget != null && _targetManager.GPoseTarget.ObjectKind == ObjectKind.Player) {
+        if (_targetManager.GPoseTarget != null && _targetManager.GPoseTarget.ObjectKind == ObjectKind.Pc) {
             var obj = _targetManager.GPoseTarget;
             PoseBrowser.Log.Debug($"object found: {obj.Name}");
             return obj;
@@ -87,9 +82,9 @@ internal class BrioService : IDisposable
         if(gameObject == null) return false;
 
         if (_configurationService.Configuration.IPC.SaveAndResporePoseInsteadOfReset) {
-            return ActorPoseLoadFromJsonIPC?.InvokeFunc(gameObject, LastPoseSaved, false) ?? false;
+            return LoadPoseFromJsonSubscriber?.Invoke(gameObject, LastPoseSaved, false) ?? false;
         }
-        return ActorPoseResetIPC?.InvokeFunc(gameObject, false) ?? false;
+        return ResetPoseSubscriber?.Invoke(gameObject, false) ?? false;
 
     }
 
